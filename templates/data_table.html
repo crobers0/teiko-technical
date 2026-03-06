@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Data Browser</h2>
+<p>Showing {{ offset+1 }}–{{ offset + rows|length }} of {{ total }} rows</p>
+<table>
+  <thead>
+    <tr>
+      {% if rows and rows[0] %}
+        {% for col in rows[0].keys() %}
+        <th>{{ col }}</th>
+        {% endfor %}
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      {% for v in r.values() %}
+      <td>{{ v }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

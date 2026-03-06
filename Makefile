@@ -1,6 +1,6 @@
 .PHONY: setup pipeline dashboard clean
 
-setup:
+setup: clean
 	pip install -r requirements.txt
 	@echo "Dependencies installed"
 
@@ -10,7 +10,7 @@ pipeline: setup
 	python statistical_analysis.py
 	python subset_analysis.py
 
-dashboard: setup
+dashboard: setup pipeline
 	python dashboard.py
 
 clean:

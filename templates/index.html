@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<section>
+  <p>Samples available: {{ n_samples }}</p>
+  <p>Projects: {{ projects }}</p>
+  <ul>
+    <li><a href="{{ url_for('data_table') }}">Browse data</a></li>
+    <li><a href="{{ url_for('visuals') }}">View visualizations</a></li>
+    <li><a href="{{ url_for('analytics') }}">Analytics</a></li>
+  </ul>
+</section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Analytics</h2>
+{% if stats %}
+<table>
+  <thead>
+    <tr>
+      <th>population</th><th>statistic</th><th>p_value</th><th>p_corrected</th><th>significant</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for r in stats %}
+    <tr>
+      <td>{{ r.population }}</td>
+      <td>{{ r.statistic }}</td>
+      <td>{{ r.p_value }}</td>
+      <td>{{ r.p_corrected }}</td>
+      <td>{{ r.significant }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+  <p>No stats found. Generate response_stats.csv by running the analysis.</p>
+{% endif %}
+{% endblock %}
