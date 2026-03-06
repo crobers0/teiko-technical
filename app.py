@@ -23,11 +23,18 @@ def index():
 @app.route('/data')
 def data_table():
     df = get_csv_df()
+    q = request.args.get('q')
+    if q and 'sample' in df.columns:
+        df = df[df['sample'].astype(str).str.contains(q, case=False, na=False)]
+
     limit = int(request.args.get('limit', 50))
     offset = int(request.args.get('offset', 0))
     total = len(df)
     rows = df.iloc[offset:offset+limit].to_dict(orient='records')
-    return render_template('data_table.html', rows=rows, limit=limit, offset=offset, total=total)
+    # build pagination urls
+    prev_offset = max(0, offset - limit)
+    next_offset = offset + limit if offset + limit < total else offset
+    return render_template('data_table.html', rows=rows, limit=limit, offset=offset, total=total, q=q, prev_offset=prev_offset, next_offset=next_offset)
 
 
 @app.route('/api/samples')
@@ -65,6 +72,14 @@ def analytics():
     if os.path.exists(stats_path):
         stats = pd.read_csv(stats_path).to_dict(orient='records')
     return render_template('analytics.html', stats=stats)
+
+
+@app.route('/download/<path:filename>')
+def download_file(filename):
+    # Allow download of generated CSV/HTML files from project root
+    if os.path.exists(filename):
+        return send_from_directory('.', filename, as_attachment=True)
+    return (f"File not found: {filename}", 404)
 
 
 @app.route('/api/stats')

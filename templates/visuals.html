@@ -2,12 +2,15 @@
 {% block content %}
 <h2>Visualizations</h2>
 {% if visuals %}
-  {% for v in visuals %}
-    <section>
-      <h3>{{ v.name }}</h3>
-      <iframe src="{{ v.url }}" width="100%" height="600" frameborder="0"></iframe>
-    </section>
-  {% endfor %}
+  <div class="visual-controls">
+    {% for v in visuals %}
+      <button class="viz-btn" data-src="{{ v.url }}">{{ v.name }}</button>
+    {% endfor %}
+  </div>
+
+  <div class="visual-frame">
+    <iframe id="viz-frame" src="{{ visuals[0].url }}" width="100%" height="700" frameborder="0"></iframe>
+  </div>
 {% else %}
   <p>No visualizations found. Run the pipeline to generate HTML outputs.</p>
 {% endif %}
