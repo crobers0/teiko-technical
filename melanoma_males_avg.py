@@ -33,3 +33,5 @@ def get_melanoma_male_responders_avg():
 
 if __name__ == "__main__":
     get_melanoma_male_responders_avg()
+
+# result: 10276.79
