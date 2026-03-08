@@ -23,18 +23,67 @@ def index():
 @app.route('/data')
 def data_table():
     df = get_csv_df()
-    q = request.args.get('q')
-    if q and 'sample' in df.columns:
-        df = df[df['sample'].astype(str).str.contains(q, case=False, na=False)]
+    # Build filters for each column based on data
+    filters = []
+    if not df.empty:
+        for col in df.columns:
+            series = df[col]
+            # Decide input type
+            if pd.api.types.is_numeric_dtype(series):
+                col_min = request.args.get(f"{col}_min")
+                col_max = request.args.get(f"{col}_max")
+                # compute range for display
+                try:
+                    real_min = float(series.min())
+                    real_max = float(series.max())
+                except Exception:
+                    real_min = None
+                    real_max = None
+                filters.append({'name': col, 'type': 'number', 'min': real_min, 'max': real_max, 'value_min': col_min, 'value_max': col_max})
+            else:
+                # for non-numeric, if few unique values present offer select, otherwise text
+                uniques = series.dropna().astype(str).unique()
+                if 1 < len(uniques) <= 20:
+                    # sort uniques
+                    opts = sorted(list(uniques))
+                    val = request.args.get(col)
+                    filters.append({'name': col, 'type': 'select', 'options': opts, 'value': val})
+                else:
+                    val = request.args.get(col)
+                    filters.append({'name': col, 'type': 'text', 'value': val})
+
+    # Apply filters from request args
+    for f in filters:
+        name = f['name']
+        if f['type'] == 'number':
+            vmin = request.args.get(f"{name}_min")
+            vmax = request.args.get(f"{name}_max")
+            if vmin:
+                try:
+                    df = df[pd.to_numeric(df[name], errors='coerce') >= float(vmin)]
+                except Exception:
+                    pass
+            if vmax:
+                try:
+                    df = df[pd.to_numeric(df[name], errors='coerce') <= float(vmax)]
+                except Exception:
+                    pass
+        elif f['type'] == 'select':
+            v = request.args.get(name)
+            if v:
+                df = df[df[name].astype(str) == v]
+        else:
+            v = request.args.get(name)
+            if v:
+                df = df[df[name].astype(str).str.contains(v, case=False, na=False)]
 
     limit = int(request.args.get('limit', 50))
     offset = int(request.args.get('offset', 0))
     total = len(df)
     rows = df.iloc[offset:offset+limit].to_dict(orient='records')
-    # build pagination urls
     prev_offset = max(0, offset - limit)
     next_offset = offset + limit if offset + limit < total else offset
-    return render_template('data_table.html', rows=rows, limit=limit, offset=offset, total=total, q=q, prev_offset=prev_offset, next_offset=next_offset)
+    return render_template('data_table.html', rows=rows, limit=limit, offset=offset, total=total, filters=filters, prev_offset=prev_offset, next_offset=next_offset)
 
 
 @app.route('/api/samples')

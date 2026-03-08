@@ -3,9 +3,46 @@
 <h2>Data Browser</h2>
 
 <form method="get" action="{{ url_for('data_table') }}" class="search-form">
-  <input type="text" name="q" value="{{ q or '' }}" placeholder="Search sample...">
-  <button type="submit" class="btn">Search</button>
-  <a class="btn secondary" href="{{ url_for('download_file', filename='cell-count.csv') }}">Download CSV</a>
+  {% if filters %}
+    {% set chunk = (filters|length // 3) + (1 if filters|length % 3 else 0) %}
+    <div class="filters-panel">
+      <div class="filters-grid">
+        {% for row in [0,1,2] %}
+          <div class="filters-row">
+            {% for f in filters[row*chunk:(row+1)*chunk] %}
+              <div class="filter-item">
+                {% if f.type == 'text' %}
+                  <label class="muted">{{ f.name }}</label>
+                  <input type="text" name="{{ f.name }}" value="{{ f.value or '' }}" placeholder="{{ f.name }}">
+                {% elif f.type == 'select' %}
+                  <label class="muted">{{ f.name }}</label>
+                  <select name="{{ f.name }}">
+                    <option value="">All {{ f.name }}</option>
+                    {% for opt in f.options %}
+                      <option value="{{ opt }}" {% if opt == f.value %}selected{% endif %}>{{ opt }}</option>
+                    {% endfor %}
+                  </select>
+                {% elif f.type == 'number' %}
+                  <label class="muted">{{ f.name }}</label>
+                  <div class="num-row">
+                    <input type="number" step="any" min="0" name="{{ f.name }}_min" value="{{ f.value_min or '' }}" placeholder="min" class="num-input" data-col="{{ f.name }}">
+                    <input type="number" step="any" min="0" name="{{ f.name }}_max" value="{{ f.value_max or '' }}" placeholder="max" class="num-input" data-col="{{ f.name }}">
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="filter-actions">
+        <button type="submit" class="btn">Filter</button>
+        <a class="btn secondary" href="{{ url_for('data_table') }}">Clear</a>
+        <a class="btn secondary" href="{{ url_for('download_file', filename='cell-count.csv') }}">Download CSV</a>
+      </div>
+    </div>
+  {% else %}
+    <input type="text" name="q" value="" placeholder="Search...">
+  {% endif %}
 </form>
 
 <p class="muted">Showing {{ offset+1 }}–{{ offset + rows|length }} of {{ total }} rows</p>
@@ -34,12 +71,21 @@
 </div>
 
 <div class="pager">
-  {% if offset > 0 %}
-    <a class="btn" href="{{ url_for('data_table') }}?limit={{ limit }}&offset={{ prev_offset }}{% if q %}&q={{ q }}{% endif %}">Previous</a>
-  {% endif %}
-  {% if offset + limit < total %}
-    <a class="btn" href="{{ url_for('data_table') }}?limit={{ limit }}&offset={{ next_offset }}{% if q %}&q={{ q }}{% endif %}">Next</a>
-  {% endif %}
+  <form method="get" action="{{ url_for('data_table') }}">
+    {# preserve existing filter/query params as hidden inputs #}
+    {% for k, v in request.args.items() %}
+      {% if k not in ['offset', 'limit'] %}
+        <input type="hidden" name="{{ k }}" value="{{ v }}">
+      {% endif %}
+    {% endfor %}
+    <input type="hidden" name="limit" value="{{ limit }}">
+    {% if offset > 0 %}
+      <button class="btn" type="submit" name="offset" value="{{ prev_offset }}">Previous</button>
+    {% endif %}
+    {% if offset + limit < total %}
+      <button class="btn" type="submit" name="offset" value="{{ next_offset }}">Next</button>
+    {% endif %}
+  </form>
 </div>
 
 {% endblock %}
