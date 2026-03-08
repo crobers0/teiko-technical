@@ -128,7 +128,7 @@ idx_samples_time        — Fast temporal filtering
 
 ### Directory Layout
 ```
-├── load_data.py              # CSV → SQLite pipeline
+├── load_data.py              # CSV to SQLite pipeline
 ├── initial_analysis.py       # Cell frequency analysis
 ├── statistical_analysis.py   # Mann-Whitney U tests, responder comparison
 ├── subset_analysis.py        # Baseline sample extraction & summary
@@ -175,14 +175,14 @@ idx_samples_time        — Fast temporal filtering
 
 **dashboard.py** (Flask Application)
 - **Routes:**
-  - `/` — Home page with dataset summary
-  - `/initial_analysis` — Cell frequency table
-  - `/data` — Data Browser: filter & explore all samples
-  - `/visuals` — Statistical Analysis: responder comparisons
-  - `/subset_analysis` — Subset Analysis: baseline sample exploration
-  - `/api/samples` — JSON API for sample search
-  - `/download/<filename>` — CSV download endpoint
-  - `/health` — Health check endpoint
+  - `/` - Home page with dataset summary
+  - `/initial_analysis` - Cell frequency table
+  - `/data` - Data Browser: filter & explore all samples
+  - `/visuals` - Statistical Analysis: responder comparisons
+  - `/subset_analysis` - Subset Analysis: baseline sample exploration
+  - `/api/samples` - JSON API for sample search
+  - `/download/<filename>` - CSV download endpoint
+  - `/health` - Health check endpoint
 
 - **Key Features:**
   - **SQL-based filtering**: All search/filter operations happen in SQLite
@@ -222,11 +222,11 @@ idx_samples_time        — Fast temporal filtering
 ## Dashboard Features
 
 ### Navigation
-- **Home** — Overview of dataset volume
-- **Initial Analysis: Data Overview** — Cell frequency table visualization
-- **Data Browser** — Full dataset explorer with filtering & summary statistics
-- **Statistical Analysis** — Responder vs. non-responder comparisons
-- **Data Subset Analysis** — Baseline melanoma/miraclib patient analysis
+- **Home** - Overview of dataset volume
+- **Initial Analysis: Data Overview** - Cell frequency table visualization
+- **Data Browser** - Full dataset explorer with filtering & summary statistics
+- **Statistical Analysis** - Responder vs. non-responder comparisons
+- **Data Subset Analysis** - Baseline melanoma/miraclib patient analysis
 
 ### Filtering
 - **Numeric filters**: Min/max range selection (e.g., age 18–65)
