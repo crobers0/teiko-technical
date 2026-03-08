@@ -1,9 +1,11 @@
 # Teiko Technical Assessment: Cell Population Analysis Dashboard
 
-A Python-based data analysis and visualization platform for exploring immunological cell population data across clinical projects and subjects. This project demonstrates data pipeline automation, relational database design, and interactive web-based analytics.
+A Python-based data analysis and visualization platform for exploring immune cell population data across clinical projects and subjects. This project demonstrates data pipeline automation, relational database design, and interactive web-based analytics.
 
-**Author:** Colin Roberson 
+**Author:** Colin Roberson
+
 [**Email**](mailto:colinroberson969@gmail.com)
+
 **Date:** March 7th, 2026
 
 ---
@@ -21,14 +23,13 @@ A Python-based data analysis and visualization platform for exploring immunologi
    make setup
    ```
 
-2. **Run the complete pipeline (data loading + analysis + dashboard):**
+2. **Run the complete pipeline (data loading and analysis):**
    ```bash
    make dashboard
    ```
 
 3. **Access the dashboard:**
-   - The Flask server will start on `http://127.0.0.1:5000`
-   - Open this URL in your browser
+   - The Flask server will start on **http://127.0.0.1:5000**
 
 4. **Clean up generated files:**
    ```bash
@@ -219,7 +220,7 @@ idx_samples_time
 - **Data Subset Analysis** - Baseline melanoma/miraclib patient analysis
 
 ### Filtering
-- **Numeric filters**: Min/max range selection (e.g., age 18–65)
+- **Numeric filters**: Min/max range selection (e.g., age 18-65)
 - **Select filters**: Dropdown for categorical columns with <20 unique values
 - **Text filters**: Free-text search with LIKE matching
 
