@@ -52,9 +52,9 @@ The data is stored in SQLite with a normalized star-schema design optimized for 
 
 ```
 subjects (central entity)
-  ├── conditions (subject → conditions mapping)
-  ├── treatments (subject → treatments & responses)
-  └── samples (subject → biological samples & cell counts)
+  ├── conditions (subject, conditions)
+  ├── treatments (subject, treatments and responses)
+  └── samples (subject, biological samples and cell counts)
 ```
 
 ### Tables
@@ -84,11 +84,11 @@ subjects (central entity)
 
 ### Indexes
 ```sql
-idx_subjects_project    — Fast filtering by project
-idx_samples_subject     — Fast sample lookup by subject
-idx_treatments_subject  — Fast treatment lookup by subject
-idx_conditions_subject  — Fast condition lookup by subject
-idx_samples_time        — Fast temporal filtering
+idx_subjects_project
+idx_samples_subject
+idx_treatments_subject
+idx_conditions_subject
+idx_samples_time
 ```
 
 ### Design Rationale
@@ -193,27 +193,17 @@ idx_samples_time        — Fast temporal filtering
 
 ### Design Decisions
 
-1. **SQLite instead of in-memory filtering**
-   - Enables scalability to large datasets
-   - Queries run at database level
-   - Reduces memory footprint of dashboard process
-
-2. **Parametrized SQL queries**
+1. **Parametrized SQL queries**
    - Prevents SQL injection
    - Query caching by database engine
    - Maintains data separation per request
 
-3. **Separate analysis scripts + Flask app**
-   - Pipeline scripts can be run offline for reproducibility
-   - Dashboard only serves pre-generated results and live filtering
-   - Separation of concerns: data processing vs. presentation
-
-4. **Client-side tab switching with `display: none`**
+2. **Client-side tab switching with `display: none`**
    - No page reloads needed
    - Faster UX than server-side routing for tabs
    - JavaScript handles button state management
 
-5. **Responsive iframe styling**
+3. **Responsive iframe styling**
    - Plotly visualizations automatically scale to viewport
    - Injected CSS into iframes ensures mobile compatibility
 
@@ -230,7 +220,7 @@ idx_samples_time        — Fast temporal filtering
 
 ### Filtering
 - **Numeric filters**: Min/max range selection (e.g., age 18–65)
-- **Select filters**: Dropdown for categorical columns with ≤20 unique values
+- **Select filters**: Dropdown for categorical columns with <20 unique values
 - **Text filters**: Free-text search with LIKE matching
 
 ### Summary Statistics
@@ -255,7 +245,7 @@ Once running, visit: **http://127.0.0.1:5000**
 - **Data Processing**: pandas, numpy
 - **Statistics**: scipy (Mann-Whitney U tests)
 - **Visualization**: Plotly (interactive HTML charts)
-- **Frontend**: HTML5, CSS3, vanilla JavaScript
+- **Frontend**: HTML5, CSS3, JavaScript
 
 ---
 
