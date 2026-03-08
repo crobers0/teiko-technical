@@ -14,7 +14,8 @@ A Python-based data analysis and visualization platform for exploring immune cel
 
 ### Prerequisites
 - Python 3.8+
-- Virtual environment activated (recommended)
+- Python virtual environment
+- make
 - `cell-count.csv`
 
 ### Installation and Running
