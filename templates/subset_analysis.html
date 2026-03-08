@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Data Subset Analysis</h2>
+<p class="page-description">Explore Bob's specific subset (all melanoma PBMC samples at baseline from patients who have been treated with miraclib) of the data to understand early treatment effects.</p>
+
+{% if filters or summary_stats %}
+<div class="visual-controls">
+  <button class="viz-btn" data-view="data-table">Data Table</button>
+  {% if summary_stats %}
+    <button class="viz-btn" data-view="summary-stats">Summary Statistics</button>
+  {% endif %}
+</div>
+
+<div id="data-table-container">
+  <form method="get" action="{{ url_for('subset_analysis') }}" class="search-form">
+    {% set chunk = (filters|length // 3) + (1 if filters|length % 3 else 0) %}
+    <div class="filters-panel">
+      <div class="filters-grid">
+        {% for row in [0,1,2] %}
+          <div class="filters-row">
+            {% for f in filters[row*chunk:(row+1)*chunk] %}
+              <div class="filter-item">
+                {% if f.type == 'text' %}
+                  <label class="muted">{{ f.name }}</label>
+                  <input type="text" name="{{ f.name }}" value="{{ f.value or '' }}" placeholder="{{ f.name }}">
+                {% elif f.type == 'select' %}
+                  <label class="muted">{{ f.name }}</label>
+                  <select name="{{ f.name }}">
+                    <option value="">All {{ f.name }}</option>
+                    {% for opt in f.options %}
+                      <option value="{{ opt }}" {% if opt == f.value %}selected{% endif %}>{{ opt }}</option>
+                    {% endfor %}
+                  </select>
+                {% elif f.type == 'number' %}
+                  <label class="muted">{{ f.name }}</label>
+                  <div class="num-row">
+                    <input type="number" step="any" min="0" name="{{ f.name }}_min" value="{{ f.value_min or '' }}" placeholder="min" class="num-input" data-col="{{ f.name }}">
+                    <input type="number" step="any" min="0" name="{{ f.name }}_max" value="{{ f.value_max or '' }}" placeholder="max" class="num-input" data-col="{{ f.name }}">
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+      <div class="filter-actions">
+        <a class="btn secondary" href="{{ url_for('subset_analysis') }}">Clear</a>
+        <a class="btn secondary" href="{{ url_for('download_file', filename='baseline_miraclib_melanoma_samples.csv') }}">Download CSV</a>
+      </div>
+    </div>
+  </form>
+
+  <p class="muted">Showing {{ offset+1 }}–{{ offset + rows|length }} of {{ total }} rows</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          {% if rows and rows[0] %}
+            {% for col in rows[0].keys() %}
+            <th>{{ col }}</th>
+            {% endfor %}
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          {% for v in r.values() %}
+          <td>{{ v }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pager">
+    <form method="get" action="{{ url_for('subset_analysis') }}">
+      {# preserve existing filter/query params as hidden inputs #}
+      {% for k, v in request.args.items() %}
+        {% if k not in ['offset', 'limit'] %}
+          <input type="hidden" name="{{ k }}" value="{{ v }}">
+        {% endif %}
+      {% endfor %}
+      <input type="hidden" name="limit" value="{{ limit }}">
+      {% if offset > 0 %}
+        <button class="btn" type="submit" name="offset" value="{{ prev_offset }}">Previous</button>
+      {% endif %}
+      {% if offset + limit < total %}
+        <button class="btn" type="submit" name="offset" value="{{ next_offset }}">Next</button>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+{% if summary_stats %}
+<div id="summary-stats-container" style="display: none;">
+  {% if summary_stats.samples_per_project %}
+  <div class="stats-section">
+    <h3>Samples per Project</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>project</th><th>n_samples</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in summary_stats.samples_per_project %}
+        <tr>
+          <td>{{ r.project }}</td>
+          <td>{{ r.n_samples }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if summary_stats.response_counts %}
+  <div class="stats-section">
+    <h3>Subjects by Response</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>response</th><th>n_subjects</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in summary_stats.response_counts %}
+        <tr>
+          <td>{{ r.response }}</td>
+          <td>{{ r.n_subjects }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if summary_stats.sex_counts %}
+  <div class="stats-section">
+    <h3>Subjects by Sex</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>sex</th><th>n_subjects</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in summary_stats.sex_counts %}
+        <tr>
+          <td>{{ r.sex }}</td>
+          <td>{{ r.n_subjects }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const buttons = document.querySelectorAll('.viz-btn');
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      document.querySelectorAll('.viz-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      if (this.dataset.view === 'data-table') {
+        document.getElementById('data-table-container').style.display = 'block';
+        if (document.getElementById('summary-stats-container')) {
+          document.getElementById('summary-stats-container').style.display = 'none';
+        }
+      } else if (this.dataset.view === 'summary-stats') {
+        document.getElementById('data-table-container').style.display = 'none';
+        document.getElementById('summary-stats-container').style.display = 'block';
+      }
+    });
+  });
+  
+  if (buttons.length > 0) {
+    buttons[0].classList.add('active');
+  }
+
+  // Auto-submit form on filter input change
+  const searchForm = document.querySelector('form.search-form');
+  if (searchForm) {
+    const filterInputs = searchForm.querySelectorAll('input[type="text"], input[type="number"], select');
+    filterInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        searchForm.submit();
+      });
+      
+      if (input.type === 'text') {
+        let debounceTimer;
+        input.addEventListener('input', function() {
+          clearTimeout(debounceTimer);
+          debounceTimer = setTimeout(() => {
+            searchForm.submit();
+          }, 500);
+        });
+      }
+    });
+  }
+});
+</script>
+
+{% else %}
+  <p>No subset analysis data found. Generate `baseline_miraclib_melanoma_samples.csv` by running the pipeline.</p>
+{% endif %}
+{% endblock %}

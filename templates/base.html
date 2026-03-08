@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Pipeline Dashboard</title>
+    <title>Pipeline Dashboard (Teiknical)</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   </head>
@@ -11,15 +11,16 @@
     <div class="container">
       <header class="site-header">
         <div class="title-area">
-          <h1>Pipeline Dashboard</h1>
-          <p class="subtitle">Browse data, visualizations and analytics</p>
+          <h1>Pipeline Dashboard (Teiknical)</h1>
+          <p class="subtitle">Browse data and Bob's initial analysis, statistical analysis, and subset analysis</p>
         </div>
 
         <nav class="main-nav">
           <a class="nav-link" href="{{ url_for('index') }}">Home</a>
-          <a class="nav-link" href="{{ url_for('data_table') }}">Data</a>
-          <a class="nav-link" href="{{ url_for('visuals') }}">Visuals</a>
-          <a class="nav-link" href="{{ url_for('analytics') }}">Analytics</a>
+          <a class="nav-link" href="{{ url_for('data_table') }}">Data Browser</a>
+          <a class="nav-link" href="{{ url_for('initial_analysis') }}">Initial Analysis: Data Overview</a>
+          <a class="nav-link" href="{{ url_for('visuals') }}">Statistical Analysis</a>
+          <a class="nav-link" href="{{ url_for('subset_analysis') }}">Data Subset Analysis</a>
         </nav>
       </header>
 

@@ -12,8 +12,9 @@ body { font-family: Inter, system-ui, -apple-system, Arial, sans-serif; backgrou
 .title-area h1 { margin: 0; font-size: 1.25rem; color: var(--accent); }
 .title-area .subtitle { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .main-nav { display: flex; gap: 8px; }
-.nav-link { text-decoration: none; color: var(--accent); padding: 8px 10px; border-radius: 6px; border: 1px solid transparent; }
-.nav-link:hover { background: rgba(0,0,0,0.03); }
+.nav-link { text-decoration: none; color: var(--accent); padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: transparent; cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 0.85rem; transition: all 0.2s ease; }
+.nav-link:hover { opacity: 0.8; }
+.nav-link.active { background: #1a3a3a; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 
 .content { background: var(--panel); border: 1px solid var(--border); padding: 16px; border-radius: 8px; }
 
@@ -62,6 +63,18 @@ th { font-weight: 600; color: var(--muted); position: sticky; top: 0; background
 
 /* analytics */
 .analytics-actions { display: flex; gap: 8px; margin-bottom: 12px; }
+
+/* page descriptions */
+.page-description { color: var(--muted); font-size: 0.95rem; margin: 0 0 16px 0; padding: 0; line-height: 1.4; }
+
+/* home page */
+section ul { list-style: none; padding: 0; margin: 12px 0; display: flex; gap: 8px; flex-wrap: wrap; }
+section li { margin: 0; }
+
+/* subset analysis summary stats */
+.stats-section { margin-bottom: 20px; }
+.stats-section h3 { margin: 12px 0 8px 0; font-size: 1rem; color: var(--accent); }
+.stats-section table { width: 300px; table-layout: fixed; }
 
 @media (max-width: 700px) {
 	.site-header { flex-direction: column; align-items: flex-start; }

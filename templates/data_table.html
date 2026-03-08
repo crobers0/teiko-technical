@@ -1,7 +1,18 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Data Browser</h2>
+<p class="page-description">Browse and filter all samples in the dataset.</p>
 
+{% if filters or summary_stats %}
+<div class="visual-controls">
+  <button class="viz-btn" data-view="data-table">Data Table</button>
+  {% if summary_stats %}
+    <button class="viz-btn" data-view="summary-stats">Summary Statistics</button>
+  {% endif %}
+</div>
+{% endif %}
+
+<div id="data-table-container">
 <form method="get" action="{{ url_for('data_table') }}" class="search-form">
   {% if filters %}
     {% set chunk = (filters|length // 3) + (1 if filters|length % 3 else 0) %}
@@ -15,13 +26,23 @@
                   <label class="muted">{{ f.name }}</label>
                   <input type="text" name="{{ f.name }}" value="{{ f.value or '' }}" placeholder="{{ f.name }}">
                 {% elif f.type == 'select' %}
-                  <label class="muted">{{ f.name }}</label>
-                  <select name="{{ f.name }}">
-                    <option value="">All {{ f.name }}</option>
-                    {% for opt in f.options %}
-                      <option value="{{ opt }}" {% if opt == f.value %}selected{% endif %}>{{ opt }}</option>
-                    {% endfor %}
-                  </select>
+                  {% if f.name == 'project' %}
+                    <label class="muted">{{ f.name }}</label>
+                    <select name="{{ f.name }}">
+                      <option value="">All {{ f.name }}s</option>
+                      {% for opt in f.options %}
+                        <option value="{{ opt }}" {% if opt == f.value %}selected{% endif %}>{{ opt }}</option>
+                      {% endfor %}
+                    </select>
+                  {% else %}
+                    <label class="muted">{{ f.name }}</label>
+                    <select name="{{ f.name }}">
+                      <option value="">All {{ f.name }}</option>
+                      {% for opt in f.options %}
+                        <option value="{{ opt }}" {% if opt == f.value %}selected{% endif %}>{{ opt }}</option>
+                      {% endfor %}
+                    </select>
+                  {% endif %}
                 {% elif f.type == 'number' %}
                   <label class="muted">{{ f.name }}</label>
                   <div class="num-row">
@@ -35,9 +56,8 @@
         {% endfor %}
       </div>
       <div class="filter-actions">
-        <button type="submit" class="btn">Filter</button>
         <a class="btn secondary" href="{{ url_for('data_table') }}">Clear</a>
-        <a class="btn secondary" href="{{ url_for('download_file', filename='cell-count.csv') }}">Download CSV</a>
+        <a class="btn secondary" href="{{ url_for('download_file', filename='cell-count.csv') }}">Download full CSV</a>
       </div>
     </div>
   {% else %}
@@ -87,5 +107,102 @@
     {% endif %}
   </form>
 </div>
+</div>
+
+{% if summary_stats %}
+<div id="summary-stats-container" style="display: none;">
+  {% if summary_stats.samples_per_project %}
+  <div class="stats-section">
+    <h4>Summary of filtered data:</h4>
+    <h3>Samples per Project</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>project</th><th>n_samples</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in summary_stats.samples_per_project %}
+        <tr>
+          <td>{{ r.project }}</td>
+          <td>{{ r.n_samples }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if summary_stats.response_counts %}
+  <div class="stats-section">
+    <h3>Subjects by Response</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>response</th><th>n_subjects</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in summary_stats.response_counts %}
+        <tr>
+          <td>{{ r.response }}</td>
+          <td>{{ r.n_subjects }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+
+  {% if summary_stats.sex_counts %}
+  <div class="stats-section">
+    <h3>Subjects by Sex</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>sex</th><th>n_subjects</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in summary_stats.sex_counts %}
+        <tr>
+          <td>{{ r.sex }}</td>
+          <td>{{ r.n_subjects }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchForm = document.querySelector('form.search-form');
+  if (!searchForm) return;
+  
+  // Get all input fields (text, number, select) in the filter panel
+  const filterInputs = searchForm.querySelectorAll('input[type="text"], input[type="number"], select');
+  
+  // Auto-submit on input change
+  filterInputs.forEach(input => {
+    input.addEventListener('change', function() {
+      searchForm.submit();
+    });
+    
+    // For real-time feedback on text inputs, submit after a short delay
+    if (input.type === 'text') {
+      let debounceTimer;
+      input.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          searchForm.submit();
+        }, 500);
+      });
+    }
+  });
+});
+</script>
 
 {% endblock %}

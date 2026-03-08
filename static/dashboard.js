@@ -1,18 +1,59 @@
 document.addEventListener('DOMContentLoaded', function () {
-  // switch iframe src when clicking buttons
+  // Highlight current nav button based on current URL
+  const currentPath = window.location.pathname;
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (href === currentPath) {
+      link.classList.add('active');
+    } else {
+      link.classList.remove('active');
+    }
+  });
+
+  // Handle viz button tab switching for data-table and summary-stats
   const vizButtons = document.querySelectorAll('.viz-btn');
-  const vizFrame = document.getElementById('viz-frame');
-  if (vizButtons && vizFrame) {
+  if (vizButtons.length > 0) {
     vizButtons.forEach(btn => {
       btn.addEventListener('click', () => {
+        const targetView = btn.getAttribute('data-view');
+        
+        // Hide all view containers
+        const dataTableContainer = document.getElementById('data-table-container');
+        const summaryStatsContainer = document.getElementById('summary-stats-container');
+        
+        if (dataTableContainer) dataTableContainer.style.display = 'none';
+        if (summaryStatsContainer) summaryStatsContainer.style.display = 'none';
+        
+        // Show the target container
+        if (targetView === 'data-table' && dataTableContainer) {
+          dataTableContainer.style.display = 'block';
+        } else if (targetView === 'summary-stats' && summaryStatsContainer) {
+          summaryStatsContainer.style.display = 'block';
+        }
+        
+        // Update active button state
         vizButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
+      });
+    });
+    
+    // Set first button as active on page load
+    if (vizButtons[0]) {
+      vizButtons[0].classList.add('active');
+    }
+  }
+  
+  // switch iframe src when clicking buttons (for visualization pages)
+  const vizFrame = document.getElementById('viz-frame');
+  if (vizFrame) {
+    const vizButtonsIframe = document.querySelectorAll('.viz-btn');
+    vizButtonsIframe.forEach(btn => {
+      btn.addEventListener('click', () => {
         const src = btn.getAttribute('data-src');
         if (src) vizFrame.src = src;
       });
     });
-    // mark first active
-    if (vizButtons[0]) vizButtons[0].classList.add('active');
   }
 
   // adjust iframe content to avoid horizontal scrolling and make plots responsive

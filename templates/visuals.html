@@ -1,17 +1,74 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Visualizations</h2>
-{% if visuals %}
+<h2>Statistical Analysis</h2>
+<p class="page-description">Compare the differences in cell population relative frequencies of melanoma patients receiving miraclib who respond (responders) versus those who do not (non-responders) for PBMC samples.</p>
+{% if visuals or stats %}
   <div class="visual-controls">
     {% for v in visuals %}
-      <button class="viz-btn" data-src="{{ v.url }}">{{ v.name }}</button>
+      <button class="viz-btn" data-src="{{ v.url }}">Boxplots</button>
     {% endfor %}
+    {% if stats %}
+      <button class="viz-btn" data-table="response-stats">Response Statistics</button>
+    {% endif %}
   </div>
 
-  <div class="visual-frame">
+  {% if visuals %}
+  <div class="visual-frame" id="visual-frame-container">
     <iframe id="viz-frame" src="{{ visuals[0].url }}" class="viz-iframe" frameborder="0" scrolling="no" allowfullscreen></iframe>
   </div>
+  {% endif %}
+  
+  {% if stats %}
+  <div id="stats-table-container" style="display: none;">
+    <div class="analytics-actions">
+      <a class="btn secondary" href="{{ url_for('download_file', filename='response_stats.csv') }}">Download CSV</a>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>population</th><th>statistic</th><th>p_value</th><th>p_corrected</th><th>significant</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in stats %}
+        <tr>
+          <td>{{ r.population }}</td>
+          <td>{{ r.statistic }}</td>
+          <td>{{ r.p_value }}</td>
+          <td>{{ r.p_corrected }}</td>
+          <td>{{ r.significant }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
 {% else %}
-  <p>No visualizations found. Run the pipeline to generate HTML outputs.</p>
+  <p>No visualizations or statistics found. Run the pipeline to generate outputs.</p>
 {% endif %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const buttons = document.querySelectorAll('.viz-btn');
+  buttons.forEach(button => {
+    button.addEventListener('click', function() {
+      document.querySelectorAll('.viz-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      
+      if (this.dataset.src) {
+        document.getElementById('visual-frame-container').style.display = 'block';
+        document.getElementById('stats-table-container').style.display = 'none';
+        document.getElementById('viz-frame').src = this.dataset.src;
+      } else if (this.dataset.table === 'response-stats') {
+        document.getElementById('visual-frame-container').style.display = 'none';
+        document.getElementById('stats-table-container').style.display = 'block';
+      }
+    });
+  });
+  
+  if (buttons.length > 0) {
+    buttons[0].classList.add('active');
+  }
+});
+</script>
 {% endblock %}

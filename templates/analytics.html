@@ -3,7 +3,6 @@
 <h2>Analytics</h2>
 {% if stats %}
   <div class="analytics-actions">
-    <a class="btn" id="refresh-stats">Refresh (reload)</a>
     <a class="btn secondary" href="{{ url_for('download_file', filename='response_stats.csv') }}">Download CSV</a>
   </div>
 
@@ -26,6 +25,6 @@
     </tbody>
   </table>
 {% else %}
-  <p>No stats found. Generate `response_stats.csv` by running the analysis.</p>
+  <p>No stats found. Generate `response_stats.csv` by running the pipeline.</p>
 {% endif %}
 {% endblock %}

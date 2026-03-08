@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 {% block content %}
 <section>
+  <p class="page-description">Explore the data and analyses performed:</p>
   <p>Samples available: {{ n_samples }}</p>
-  <p>Projects: {{ projects }}</p>
+  <p>Projects featured: {{ projects }}</p>
   <ul>
-    <li><a href="{{ url_for('data_table') }}">Browse data</a></li>
-    <li><a href="{{ url_for('visuals') }}">View visualizations</a></li>
-    <li><a href="{{ url_for('analytics') }}">Analytics</a></li>
+    <li><a href="{{ url_for('data_table') }}" class="btn">Data Browser</a></li>
+    <li><a href="{{ url_for('initial_analysis') }}" class="btn">Initial Analysis: Data Overview</a></li>
+    <li><a href="{{ url_for('visuals') }}" class="btn">Statistical Analysis</a></li>
+    <li><a href="{{ url_for('subset_analysis') }}" class="btn">Data Subset Analysis</a></li>
   </ul>
 </section>
 {% endblock %}
