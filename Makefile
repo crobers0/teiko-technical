@@ -10,7 +10,7 @@ pipeline: setup
 	python statistical_analysis.py
 	python subset_analysis.py
 
-dashboard: setup pipeline
+dashboard: pipeline
 	python dashboard.py
 
 clean:
